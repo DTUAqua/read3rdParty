@@ -1,18 +1,15 @@
-library(pacman)
-p_load(data.table,ggplot2,ggrepel,tidyverse,haven,zoo,RColorBrewer,
-       rmarkdown,gridExtra,knitr)
-
-library(readxl)
-library(openxlsx)
-library(visdat)
-library(dplyr)
-
-file_path <- "Q:/20-forskning/20-dfad/data/Data/additional_data/SKAW/get_data_from_AQUA-artsdata/Artsdata_download_2025/310725-125252_RI 376 til DTU.xlsx"
-
-
-### Function to look through different sheets
-
-search_sheet_by_name <- function(file_path) {
+#' Title
+#'
+#' @param file_path 
+#' @author Muhammad Abdullah
+#' @returns
+#' @export
+#'
+#' @examples
+read_in_clean_excel_with_elog <- function(file_path) {
+  
+  library(readxl) # Move later
+  
   sheet_names <- excel_sheets(file_path)
   
   
@@ -30,8 +27,6 @@ search_sheet_by_name <- function(file_path) {
     print("Sheets 'Ark1' and 'Table1' not found in the workbook.")
     return(NULL)
   }
-  
-  
   
   my_data <- read_excel(file_path, sheet = sheet_name,col_names = FALSE, )
   
@@ -115,7 +110,7 @@ search_sheet_by_name <- function(file_path) {
   
   ### This is due to it being observed that the bad formated files do not have all the columns so to avoid that
   ### we ignore the files with columns less then 7
-
+  
   if ( ncol(ignored_df_t) < 9 || is.null(ncol(ignored_df_t))) {
     print("Ignoring file due to insufficient columns and copying to another folder")
     return(file_path) 
@@ -329,86 +324,3 @@ search_sheet_by_name <- function(file_path) {
     return(combined_df)
   }
 }
-
-### For checking Individual files
-# file_path <- "C:/Users/muhaadu/Desktop/SKAW/For_testing_comb/211207-084614-055080-hg62_CLEAN  - Kopi.xlsx"
-file_path <- "C:/Users/emilb/Desktop/DPPO/SKAW data/2025/pdf/pdf/060525-080847_HG 62 Beinur - DTU_CLEAN.xlsx"
-file_path <-"C:/Users/emilb/Desktop/DPPO/SKAW data/2025/Til Nis, sandeel/pdf/CLEAN/020525-030129_S 204 RAPPORT_CLEAN.xlsx"
-
-# 
-result <- search_sheet_by_name(file_path)
-
-
-###### To process all the files (Working for the right formated ones)
-
-
-### Path to all files
-dir_path_all <- "C:/Users/emilb/Desktop/DPPO/SKAW data/2025/Til Nis, sandeel/pdf/CLEAN/" 
-# 
-# ### For debugging
-# 
-# # output_path <- "C:/Users/muhaadu/Desktop/SKAW/Processed/"
-# # unprocesed <- "C:/Users/muhaadu/Desktop/SKAW/weird/"
-# 
-# ### The path to put the wrong formatted files 
-# un_procesed <- "//ait-pdfs.win.dtu.dk/Qdrev/aqua/dfad/data/Data/additional_data/SKAW/muhaadu/Unprocessed/"
-# 
-# 
-file_list <- list.files(path = dir_path_all, pattern = "\\.xlsx$", full.names = TRUE)
-# 
-combined_df <- data.frame()
-# 
-# 
-for (file in file_list) {
-  print(file)
-
-  final_df <- search_sheet_by_name(file)
-  final_df$Filename <- file
-
-  if (is.data.frame(final_df)) {
-    # The value of final_df is a dataframe
-    combined_df <- bind_rows(combined_df, final_df)
-
-  } else {
-    # The value of final_df is a file path
-    # Move the file to another folder
-    file.copy(file, un_procesed, overwrite = TRUE)
-  }
-}
-
-
-combined_df <- combined_df %>% select( "Prøvenr:", SAN, `HER (stk)` , `HER (kg)`, `CEP (stk)`, `CEP (kg)`, `WHG (stk)`, `WHG (kg)`, `MAC (stk)`, `MAC (kg)`, `GUG (stk)`, `GUG (kg)`, `SPR (stk)`, `SPR (kg)`, `HAD (stk)`, `HAD (kg)`, `AJQ (stk)`, `AJQ (kg)`, `DAB (stk)`, `DAB (kg)`, `HOM (stk)`, `HOM (kg)`, `WIT (stk)`, `WIT (kg)`, USO, UsorterbartUSO, Fiskeri, Fartøj, Dato,  Status, Køber, Filename)
-
-# 
-# 
-# 
-# 
-# 
-write.csv2(combined_df, file = "SKAW_SAN_24_25.csv", row.names = FALSE,fileEncoding = "UTF-8")
-# 
-# test <- read.csv2("test.csv")
-# 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
