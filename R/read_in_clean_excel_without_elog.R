@@ -7,20 +7,15 @@
 #'
 #' @examples
 read_in_clean_excel_without_elog <- function(file_path) {
-  
-  library(readxl) # Move this later
-  
   sheet_names <- excel_sheets(file_path)
   
   if ("Ark1" %in% sheet_names && "Table 1" %in% sheet_names && "Ark2" %in% sheet_names) {
     sheet_name <- "Ark1"
-  }
-  else if ("Ark1" %in% sheet_names) {
+  } else if ("Ark1" %in% sheet_names) {
     sheet_name <- "Ark1"
-  }else if ("Table 1" %in% sheet_names) {
+  } else if ("Table 1" %in% sheet_names) {
     sheet_name <- "Table 1"
-  }  
-  else if ("Ark2" %in% sheet_names) {
+  } else if ("Ark2" %in% sheet_names) {
     sheet_name <- "Ark2"
   } else {
     print("Sheets 'Ark1' and 'Table1' not found in the workbook.")
@@ -31,7 +26,7 @@ read_in_clean_excel_without_elog <- function(file_path) {
   
   # print(paste("Found sheet '", sheet_name, "'", sep = ""))
   
-  row_with_word <- which(apply(my_data, 1, function(x) any(grepl("Procent.+Prøve|Procent.+Prøven|Procent.+prøven|Procent.+prøve|Procent.+Prnve|Prooent.+Prøven", x))))
+  row_with_word <- which(apply(my_data, 1, function(x) any(grepl("Procent.+Prøve|Procent.+Prøven|Procent.+prøven|Procent.+prøve|Procent.+Prnve|Prooent.+Prøven|Procent.+Pr0ven", x))))
   # print(row_with_word)
   colnames(my_data) <- as.character(my_data[row_with_word,])
   
@@ -65,9 +60,23 @@ read_in_clean_excel_without_elog <- function(file_path) {
   }
   
   # final_df2 <- final_df
-  columns_to_remove <- grepl("ProcentPrøve|ProcentPrøven|Procentprøve|Procentprøven|ProcentPrnve|ProoentPrøve", colnames(final_df), ignore.case = TRUE)
-  columns_to_remove <- which(columns_to_remove)
-  final_df <- final_df[, 1:(min(columns_to_remove, na.rm = TRUE) - 1)]
+  final_df <- final_df[, -grep(
+    "ProcentPrøve|ProcentPrøven|Procentprøve|Procentprøven|ProcentPrnve|ProoentPrøve",
+    colnames(final_df)
+  )]
+  final_df <- final_df[, -grep(
+    "ProcentGennemsnit|ProcentGenemsnit|ProcentGensnit|ProcentGenmensnit|ProoentGennemsnit|Procentgennemsnit|ProcentGennernsnit",
+    colnames(final_df)
+  )]
+  
+  if (ncol(select(final_df, -(contains("Dato")), -(contains("dato")))) < ncol(final_df)) {
+    final_df <- final_df[, -grep("Dato|dato", colnames(final_df))]
+  }
+  
+  if (ncol(select(final_df, -(contains("Fartøj")), -(contains("fartøj")), -(contains("HG265")))) < ncol(final_df)) {
+    final_df <- final_df[, -grep("Fartøj|fartøj|HG265", colnames(final_df))]
+  }
+  
   
   
   ignored_columns <- colnames(ignored_df)[colSums(!is.na(ignored_df)) == 0]
@@ -93,7 +102,7 @@ read_in_clean_excel_without_elog <- function(file_path) {
   # Getting the boat IDs out from Fartøj
   
   
-  ignored_df_t$Fartøj <- sub("^([A-Z]+\\s+\\d+).*", "\\1", ignored_df_t$Fartøj)
+  ignored_df_t$Fartøj <- sub("^([A-Z]+//s+//d+).*", "//1", ignored_df_t$Fartøj)
   
   
   
@@ -145,12 +154,19 @@ read_in_clean_excel_without_elog <- function(file_path) {
   
   combined_df <- combined_df[ , !(names(combined_df) %in% column_to_drop)]
   
-  
+  if (ncol(select(combined_df, -(contains("SlidHERkg")))) < ncol(combined_df)) {
+    combined_df <- rename(combined_df, "SildHERkg" = "SlidHERkg")
+  }
   
   
   ###CHECK PATH BEFORE RUNNING!! Using sas file to get the species code and match to columns
-  sad_code <- read_sas("C:/Users/emilb/Downloads/art (3).sas7bdat",NULL)
+  sad_code <- read_sas("Q:/50-radgivning/02-mynd/SAS Library/Arter/art.sas7bdat",NULL)
   species_code <- sad_code[-1,c("start","art","engkode")]
+  
+  more_species <- data.frame(start = c("USO"), art = c("Usorterbart"), engkode = c(""))
+  
+  species_code <- rbind(species_code, more_species)
+  species_code$engkode[species_code$start == "USO"] <- "USO"
   
   new_column_names <- list()
   # Iterate over the column names
@@ -186,7 +202,7 @@ read_in_clean_excel_without_elog <- function(file_path) {
   
   
   # Extract code list part from column names
-  new_colnames <- sub(paste0(".+(", paste(species_code_list, collapse = "|"), ").+"), "\\1", colnames(combined_df))
+  new_colnames <- sub(paste0(".+(", paste(species_code_list, collapse = "|"), ").+"), "//1", colnames(combined_df))
   
   
   colnames(combined_df) <- new_colnames
@@ -205,13 +221,13 @@ read_in_clean_excel_without_elog <- function(file_path) {
   # FIX OF the issue related to the fullstop values
   for (col_name in colnames(combined_df)) {
     if (col_name == "Totalvejetfisk"  ) {
-      if (any(sapply(combined_df[[col_name]], function(x) grepl("^\\d+\\.\\d+\\.\\d+$", x)))) {
-        combined_df[[col_name]] <- as.numeric(gsub("\\.", "", combined_df[[col_name]]))
+      if (any(sapply(combined_df[[col_name]], function(x) grepl("^//d+//.//d+//.//d+$", x)))) {
+        combined_df[[col_name]] <- as.numeric(gsub("//.", "", combined_df[[col_name]]))
       } else {
         combined_df[[col_name]] <- round(as.numeric(combined_df[[col_name]]), 3)
       }
     } else if (col_name == "Totalvejet") {
-      combined_df[[col_name]] <- as.numeric(gsub("\\.", "", combined_df[[col_name]]))
+      combined_df[[col_name]] <- as.numeric(gsub("//.", "", combined_df[[col_name]]))
     }
   }
   
