@@ -6,7 +6,7 @@
 #' @export
 #'
 #' @examples
-read_in_clean_excel_with_elog <- function(file_path) {
+read_in_cleaned_excel_with_elog <- function(file_path) {
   
   library(readxl) # Move later
   
