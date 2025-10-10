@@ -7,6 +7,11 @@
 #'
 #' @examples
 read_in_clean_excel_without_elog <- function(file_path) {
+  
+  library(readxl)
+  library(dplyr)
+  library(lubridate)
+  
   sheet_names <- excel_sheets(file_path)
   
   if ("Ark1" %in% sheet_names && "Table 1" %in% sheet_names && "Ark2" %in% sheet_names) {
@@ -160,13 +165,7 @@ read_in_clean_excel_without_elog <- function(file_path) {
   
   
   ###CHECK PATH BEFORE RUNNING!! Using sas file to get the species code and match to columns
-  sad_code <- read_sas("Q:/50-radgivning/02-mynd/SAS Library/Arter/art.sas7bdat",NULL)
-  species_code <- sad_code[-1,c("start","art","engkode")]
-  
-  more_species <- data.frame(start = c("USO"), art = c("Usorterbart"), engkode = c(""))
-  
-  species_code <- rbind(species_code, more_species)
-  species_code$engkode[species_code$start == "USO"] <- "USO"
+  species_code <- species
   
   new_column_names <- list()
   # Iterate over the column names
