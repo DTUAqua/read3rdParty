@@ -1,17 +1,15 @@
-library(pacman)
-p_load(data.table,ggplot2,ggrepel,tidyverse,haven,zoo,RColorBrewer,
-       rmarkdown,gridExtra,knitr)
-
-library(readxl)
-library(openxlsx)
-library(visdat)
-library(ggplot2)
-
-
-
-### Function to look through different sheets
-
-search_sheet_by_name <- function(file_path) {
+#' Title
+#'
+#' @param variables 
+#' @author Muhammad Abdullah
+#' @returns
+#' @export
+#'
+#' @examples
+read_in_clean_excel_without_elog <- function(file_path) {
+  
+  library(readxl) # Move this later
+  
   sheet_names <- excel_sheets(file_path)
   
   if ("Ark1" %in% sheet_names && "Table 1" %in% sheet_names && "Ark2" %in% sheet_names) {
@@ -271,94 +269,3 @@ search_sheet_by_name <- function(file_path) {
   
   
 }
-
-### For checking Individual files
-# file_path <- "C:/Users/muhaadu/Desktop/SKAW/For_testing_comb/211207-084614-055080-hg62_CLEAN  - Kopi.xlsx"
-file_path<- "C:/Users/emilb/Desktop/DPPO/Fiskeri i tal/2024/SKAW/20240404/20240404/CLEAN/2023/Tobis/unprocesed/280423-171615_HG 365 RAPPORT.xlsx"
-
-#resultater, raporter----   
-result <- search_sheet_by_name(file_path)
-
-
-###### To process all the files (Working for the right formated ones)----
-
-
-### Path to all files
-dir_path_all <-  "C:/Users/emilb/Desktop/DPPO/Fiskeri i tal/2024/SKAW/20240404/20240404/CLEAN/2023/Tobis/unprocesed/280423-171615_HG 365 RAPPORT.xlsx"
-# 
-# ### For debugging
-# 
-output_path <- "C:/Users/emilb/Desktop/DPPO/Fiskeri i tal/2024/SKAW/20240404/20240404/CLEAN/2023/Tobis/procesed"
-unprocesed <- "C:/Users/emilb/Desktop/DPPO/Fiskeri i tal/2024/SKAW/20240404/20240404/CLEAN/2023/Tobis/wierd"
-# 
-# ### The path to put the wrong formatted files 
-un_procesed <- "C:/Users/emilb/Desktop/DPPO/Fiskeri i tal/2024/SKAW/20240404/20240404/CLEAN/2023/Tobis/unprocesed"
-# 
-# 
-file_list <- list.files(path = dir_path_all, pattern = "\\.xlsx$", full.names = TRUE)
-# 
-combined_df <- data.frame()
-# 
-# 
-for (file in file_list) {
-  print(file)
-  
-  final_df <- search_sheet_by_name(file)
-  final_df$Filename <- file
-  
-  if (is.data.frame(final_df)) {
-    # The value of final_df is a dataframe
-    combined_df <- bind_rows(combined_df, final_df)
-    
-  } else {
-    #The value of final_df is a file path
-    #Move the file to another folder
-    file.copy(file, un_procesed, overwrite = TRUE)
-  }
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-"C:\Users\emilb\Desktop\DPPO\Fiskeri i tal\Bifangster\2019\Sild\Konsum"
