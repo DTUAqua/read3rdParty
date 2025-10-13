@@ -251,7 +251,8 @@ read_in_cleaned_excel_without_elog <- function(file_path) {
     "AJQ",
     "REG",
     "RED",
-    "USO"
+    "USO",
+    "MZZ"
   )
 
 
