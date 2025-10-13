@@ -187,9 +187,14 @@ read_in_cleaned_excel_without_elog <- function(file_path) {
   # Iterate over the column names
   for (i in seq_along(colnames(combined_df))) {
     column_name <- colnames(combined_df)[i]
-    first_word <- unlist(strsplit(column_name, "(?<=[a-z])(?=[A-Z]|kg|$)", perl = TRUE))[1]
-
-
+    
+    if (column_name == "AlmRejerCPRkg") {
+      first_word <- "Alm.Rejer"
+    } else {
+      first_word <- unlist(strsplit(column_name, "(?<=[a-z])(?=[A-Z]|kg|$)", perl = TRUE))[1]
+    }
+    
+    
     matched_row <- species_code[species_code$art == first_word, ]
 
     if (nrow(matched_row) > 0) {
