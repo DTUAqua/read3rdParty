@@ -6,29 +6,79 @@
 #' @export
 #'
 #' @examples
-read_in_skaw_excel <- function(file) {
+read_in_skaw_excel <- function(file, output_path) {
   
   library(readxl)
+  library(stringr)
+  library(dplyr)
+  
+  # Create folders for outputting
+  
+  dir.create(file.path(output_path, "to_many_sheets"))
+  dir.create(file.path(output_path, "read"))
+  dir.create(file.path(output_path, "sworn_cant_read_yet"))
+  dir.create(file.path(output_path, "skaw_dtu_19_cant_read_yet"))
+  
   print(file)
   
-  # sheet_names <- excel_sheets(path = paste0(dir_path_all, file))
-  # 
-  # if ("Ark1" %in% sheet_names && "Table 1" %in% sheet_names && "Ark2" %in% sheet_names) {
-  #   sheet_name <- "Ark1"
-  # } else if ("Ark1" %in% sheet_names) {
-  #   sheet_name <- "Ark1"
-  # } else if ("Table 1" %in% sheet_names) {
-  #   sheet_name <- "Table 1"
-  # } else if ("Ark2" %in% sheet_names) {
-  #   sheet_name <- "Ark2"
-  # } else {
-  #   print("Sheets 'Ark1' and 'Table1' not found in the workbook.")
-  #   return(NULL)
-  # }
+  sheet_names <- excel_sheets(path = paste0(dir_path_all, file))
   
-  
-  dat <-  read_excel(paste0(dir_path_all, "/", file), sheet = 1, col_names = FALSE)
-  
+  if (length(sheet_names) > 1) {
+    file.copy(
+      from = paste0(dir_path_all, file),
+      to = file.path(output_path, "to_many_sheets"),
+      overwrite = T
+    )
+    
+    dat_done <- c()
+    
+  } else if (sheet_names[1] %in% c("Tobis",
+                                   "Brisling 16+",
+                                   "Sild",
+                                   "Fjæsing",
+                                   "Brisling",
+                                   "Sild 16+")) {
+    file.copy(
+      from = paste0(dir_path_all, file),
+      to = file.path(output_path, "sworn_cant_read_yet"),
+      overwrite = T
+    )
+    
+    dat_done <- c()
+    
+  } else if (sheet_names[1] %in% c("DTU_19")) {
+    
+    file.copy(
+      from = paste0(dir_path_all, file),
+      to = file.path(output_path, "skaw_dtu_19_cant_read_yet"),
+      overwrite = T
+    )
+    
+    dat_done <- c()
+    
+  } else if (length(sheet_names) == 1 &
+             !(
+               sheet_names[1] %in% c(
+                 "Tobis",
+                 "Brisling 16+",
+                 "Sild",
+                 "Fjæsing",
+                 "Brisling",
+                 "Sild 16+",
+                 "DTU_19"
+               )
+             )) {
+    file.copy(
+      from = paste0(dir_path_all, file),
+      to = file.path(output_path, "read"),
+      overwrite = T
+    )
+    
+    
+    dat <-  read_excel(paste0(dir_path_all, "/", file),
+                       sheet = 1,
+                       col_names = FALSE)
+    
   position_col <- grep("Prøveoversigt", x = dat)
   
   dat_1 <- dat[, -c(1:(position_col-1))]
@@ -84,13 +134,19 @@ read_in_skaw_excel <- function(file) {
   position_samples <- which(apply(dat_1, 1, function(x) any(grepl("Prøve nr.", x))))
   
   samples <- dat_1[c(position_samples:nrow(dat_1)), ]
-  samples_1 <- subset(samples, !is.na(...9))
+  samples_1 <-  samples   #subset(samples, !is.na(...9))
   
   colnames(samples_1) <- samples_head[1:nrow(samples_head), ]
   
   # Remove columns after Select number of rows:
-  position_sel_row <- which( colnames(samples_1)=="Inspektor(s)" )
-  samples_1 <- samples_1[, -c(position_sel_row:ncol(samples_1))]
+  position_sel_row <- which(colnames(samples_1)=="Inspektor(s)")
+  if (length(position_sel_row) == 1) {
+    samples_1 <- samples_1[, -c(position_sel_row:ncol(samples_1))]
+  } else {
+    position_sel_row_2 <- which(colnames(samples_1)=="Total bi-\r\nfangst (kg)")
+    samples_1 <- samples_1[, -c(position_sel_row_2:ncol(samples_1))]
+  }
+  
   
   col_names <- names(samples_1)
   col_names <- gsub(".*\\s", "", col_names)
@@ -121,9 +177,11 @@ read_in_skaw_excel <- function(file) {
   colnames(samples_1) <- col_names
   
   # Clean up a bit
-  samples_2 <- samples_1 %>% select(-contains("X"))
+  samples_2 <- samples_1 %>% select(-contains("X"), -contains("(kg)"), -contains("Prøven"), -contains("snit"), -contains("Tid"))
   samples_2 <- subset(samples_2, !(`Kode:` %in% c("Prøve nr.", "Total:")))
   samples_2 <- rename(samples_2, sample_no = `Kode:`)
+  samples_2$sample_no <- as.numeric(samples_2$sample_no)
+  samples_2 <- subset(samples_2, !(is.na(sample_no)))
   
   # Transpose 
   samples_3 <- tidyr::gather(samples_2, key = spp_fao, value = amount, -sample_no)
@@ -151,8 +209,8 @@ read_in_skaw_excel <- function(file) {
   
   samples_5 <- cross_join(samples_4, head_done)
   
-  # samples_df <- bind_rows(samples_df, samples_5)
-  
-  return(samples_5)
+  dat_done <- samples_5
+  }
+  return(dat_done)
   
 }
