@@ -6,7 +6,7 @@
 #' @export
 #'
 #' @examples
-read_in_skaw_excel <- function(file, output_path) {
+read_in_skaw_excel <- function(input_path, file, output_path) {
   
   library(readxl)
   library(stringr)
@@ -21,11 +21,11 @@ read_in_skaw_excel <- function(file, output_path) {
   
   print(file)
   
-  sheet_names <- excel_sheets(path = paste0(dir_path_all, file))
+  sheet_names <- excel_sheets(path = paste0(input_path, file))
   
   if (length(sheet_names) > 1) {
     file.copy(
-      from = paste0(dir_path_all, file),
+      from = paste0(input_path, file),
       to = file.path(output_path, "to_many_sheets"),
       overwrite = T
     )
@@ -39,7 +39,7 @@ read_in_skaw_excel <- function(file, output_path) {
                                    "Brisling",
                                    "Sild 16+")) {
     file.copy(
-      from = paste0(dir_path_all, file),
+      from = paste0(input_path, file),
       to = file.path(output_path, "sworn_cant_read_yet"),
       overwrite = T
     )
@@ -49,7 +49,7 @@ read_in_skaw_excel <- function(file, output_path) {
   } else if (sheet_names[1] %in% c("DTU_19")) {
     
     file.copy(
-      from = paste0(dir_path_all, file),
+      from = paste0(input_path, file),
       to = file.path(output_path, "skaw_dtu_19_cant_read_yet"),
       overwrite = T
     )
@@ -69,13 +69,13 @@ read_in_skaw_excel <- function(file, output_path) {
                )
              )) {
     file.copy(
-      from = paste0(dir_path_all, file),
+      from = paste0(input_path, file),
       to = file.path(output_path, "read"),
       overwrite = T
     )
     
     
-    dat <-  read_excel(paste0(dir_path_all, "/", file),
+    dat <-  read_excel(paste0(input_path, file),
                        sheet = 1,
                        col_names = FALSE)
     
@@ -205,7 +205,7 @@ read_in_skaw_excel <- function(file, output_path) {
   # Add global info
   
   samples_4$fishery <- substr(colnames(samples_2)[2], 1, 3)
-  samples_4$filename <- file
+  samples_4$filename <- paste0(input_path, file)
   
   samples_5 <- cross_join(samples_4, head_done)
   
