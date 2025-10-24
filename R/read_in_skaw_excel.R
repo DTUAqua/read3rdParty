@@ -205,7 +205,8 @@ read_in_skaw_excel <- function(input_path, file, output_path) {
   # Add global info
   
   samples_4$fishery <- substr(colnames(samples_2)[2], 1, 3)
-  samples_4$filename <- paste0(input_path, file)
+  samples_4$path <- input_path
+  samples_4$filename <- file
   
   samples_5 <- cross_join(samples_4, head_done)
   
