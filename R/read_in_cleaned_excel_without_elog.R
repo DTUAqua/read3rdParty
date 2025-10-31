@@ -143,6 +143,7 @@ read_in_cleaned_excel_without_elog <- function(file_path) {
 
   column_replacements <- c(
     "Totalvejet" = "Totalvejetfisk",
+    "Totalvejetfiskkg" = "Totalvejetfisk",
     "PrøvenrKode" = "Prøvenr:",
     "Prøvenr" = "Prøvenr:",
     "Prøvenr." = "Prøvenr:",
@@ -190,10 +191,35 @@ read_in_cleaned_excel_without_elog <- function(file_path) {
     
     if (column_name == "AlmRejerCPRkg") {
       first_word <- "Alm.Rejer"
+    } else if (column_name == "RejerPRAkg") {
+      first_word <- "Dybvandsrejer"
+    } else if (column_name == "AnajosANEkg") {
+      first_word <- "Ansjos"
+    } else if (column_name == "BrisingSPRkg" | column_name == "BrisllngSPRkg") {
+      first_word <- "Brisling"
+    } else if (column_name == "HastemakrelHOMkal") {
+      first_word <- "Hestemakrel"
+    } else if (column_name == "KrabbeCRAkg") {
+      first_word <- "Krabber"
+    } else if (column_name == "BlahvillingWHBkg") {
+      first_word <- "Blåhvilling"
+    } else if (column_name == "R0dsprettePLEkg") {
+      first_word <- "Rødspætte"
+    } else if (column_name == "UsorterbarUSOkg") {
+      first_word <- "Usorterbart"
+    } else if (column_name == "SlimalMYGkg" | column_name == "SlimåIMYGkg") {
+      first_word <- "Slimål"
+    } else if (column_name == "StrnmsildARYkg") {
+      first_word <- "Strømsild"
+    } else if (column_name == "SpelingNOPkg") {
+      first_word <- "Sperling"
+    } else if (column_name == "SpelingNOPkg") {
+      first_word <- "Sperling"
+    }  else if (column_name == "GoblerVandmændAJQkg") {
+      first_word <- "Vandmand"
     } else {
       first_word <- unlist(strsplit(column_name, "(?<=[a-z])(?=[A-Z]|kg|$)", perl = TRUE))[1]
     }
-    
     
     matched_row <- species_code[species_code$art == first_word, ]
 
@@ -277,21 +303,24 @@ read_in_cleaned_excel_without_elog <- function(file_path) {
   for (col_name in colnames(combined_df)) {
     if (col_name == "Totalvejetfisk") {
       if (any(sapply(combined_df[[col_name]], function(x) {
-        grepl("^//d+//.//d+//.//d+$", x)
+        grepl("^\\d+\\.\\d+\\.\\d+$", x)
       }))) {
-        combined_df[[col_name]] <- as.numeric(gsub("//.", "", combined_df[[col_name]]))
+        combined_df[[col_name]] <- as.numeric(gsub("\\.", "", combined_df[[col_name]]))
       } else {
         combined_df[[col_name]] <- round(as.numeric(combined_df[[col_name]]), 3)
       }
     } else if (col_name == "Totalvejet") {
-      combined_df[[col_name]] <- as.numeric(gsub("//.", "", combined_df[[col_name]]))
+      combined_df[[col_name]] <- as.numeric(gsub("\\.", "", combined_df[[col_name]]))
     }
   }
 
 
   miss_spelled <- c(
     "Lillefjæsingkg" = "TOZ",
+    "LilleFjaersingTOZkg" = "TOZ",
     "Sølvoksekg" = "QGE",
+    "SølvøkserHAFkg" = "HAF",
+    "SølvokserHAFkg" = "HAF", 
     "Blahvillingkg" = "WHB",
     "Spelingkg" = "NOP",
     "Lampretkg" = "LAS",
