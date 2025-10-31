@@ -116,7 +116,45 @@ read_in_skaw_excel <- function(input_path, file, output_path) {
     date <- head_2[, grep("Dato:", head_2) + 1]
     colnames(date) <- c("date")
     date$date <- as.Date(date$date, format = "%d.%m.%Y")
+  } 
+  if (is.na(date$date)) {
+    date <- head_2[, grep("Dato:", head_2) + 2]
+    colnames(date) <- c("date")
+    date$date <- as.Date(date$date, format = "%d-%m-%Y")
   }
+  if (is.na(date$date)) {
+    date <- head_2[, grep("Dato:", head_2) + 1]
+    colnames(date) <- c("date")
+    date$date <- as.Date(date$date, format = "%d-%m-%Y")
+  }
+  if (is.na(date$date)) {
+    date <- head_2[, grep("Dato:", head_2) + 2]
+    colnames(date) <- c("date")
+    date$date <- as.Date(date$date, format = "%d/%m/%Y")
+  }
+  if (is.na(date$date)) {
+    date <- head_2[, grep("Dato:", head_2) + 1]
+    colnames(date) <- c("date")
+    date$date <- as.Date(date$date, format = "%d/%m/%Y")
+  }
+  if (is.na(date$date)) {
+    date <- head_2[, grep("Dato:", head_2) + 2]
+    colnames(date) <- c("date")
+    origin_date <- as.Date("1899-12-30")
+    date$date <- format((origin_date + lubridate::days(as.numeric(
+       date
+         ))), format = "%d-%m-%Y")
+  }
+  if (is.na(date$date)) {
+    date <- head_2[, grep("Dato:", head_2) + 1]
+    colnames(date) <- c("date")
+    origin_date <- as.Date("1899-12-30")
+    date$date <- format((origin_date + lubridate::days(as.numeric(
+      date
+    ))), format = "%d-%m-%Y")
+  }
+  
+  date$date <- as.Date(date$date)
   
   head_2 <- dat_1[position_head_2, ]
   
