@@ -191,7 +191,7 @@ read_in_cleaned_excel_without_elog <- function(file_path) {
     
     if (column_name == "AlmRejerCPRkg") {
       first_word <- "Alm.Rejer"
-    } else if (column_name == "RejerPRAkg") {
+    } else if (column_name %in% c("RejerPRAkg", "Rejerkg")) {
       first_word <- "Dybvandsrejer"
     } else if (column_name == "AnajosANEkg") {
       first_word <- "Ansjos"
@@ -201,9 +201,11 @@ read_in_cleaned_excel_without_elog <- function(file_path) {
       first_word <- "Hestemakrel"
     } else if (column_name == "KrabbeCRAkg") {
       first_word <- "Krabber"
-    } else if (column_name == "BlahvillingWHBkg") {
+    } else if (column_name %in% c("BlahvillingWHBkg", "BlålhvillingWHBkg",
+                                  "BiahvillingWHBkg")) {
       first_word <- "Blåhvilling"
-    } else if (column_name == "R0dsprettePLEkg") {
+    } else if (column_name %in% c("R0dsprettePLEkg", "R0dspattePLEkg",
+                                  "R0dspattePLEkg")) {
       first_word <- "Rødspætte"
     } else if (column_name == "UsorterbarUSOkg") {
       first_word <- "Usorterbart"
@@ -215,11 +217,32 @@ read_in_cleaned_excel_without_elog <- function(file_path) {
       first_word <- "Sperling"
     } else if (column_name == "SpelingNOPkg") {
       first_word <- "Sperling"
-    }  else if (column_name == "GoblerVandmændAJQkg") {
+    }  else if (column_name == "GoblerVandmændAJQkg") { 
       first_word <- "Vandmand"
+    } else if (column_name == "GoblerVandmrendAJQkg") {
+      first_word <- "Vandmand"
+    } else if (column_name == "GoblerVandmænndAJQkg") { 
+      first_word <- "Vandmand"
+    } else if (column_name %in% c("BlækspnutteCEPkg", "BloæksprutteCEPkg", 
+                                 "BlaiksprutteCEPkg", "BlaksprutteCEPkg",
+                                 "BlreksprutteCEPkg", "BlreksprutteCEPkg")) {
+      first_word <- "Blæksprutte"
+    } else if (column_name == "FjræsingWEGkg") {
+      first_word <- "Fjæsing"
+    } else if (column_name %in% c("RødKnurhaneGUUkg", "RødknurhaneGUUkg")) {
+      first_word <- "Rød Knurhane"
+    } else if (column_name %in% c("StorrødfiskREGkg")) {
+      first_word <- "Stor Rødfisk"
+    } else if (column_name %in% c("PlettetFløjsfiskOPHkg", "PlettetFløjfiskOPHkg")) {
+      first_word <- "Plettet Fløjfisk"
+    } else if (column_name %in% c("LampretLAUkg")) {
+      first_word <- "Havlampret"
+    } else if (column_name %in% c("HåsingPLAkg")) {
+      first_word <- "Håising"
     } else {
       first_word <- unlist(strsplit(column_name, "(?<=[a-z])(?=[A-Z]|kg|$)", perl = TRUE))[1]
     }
+
     
     matched_row <- species_code[species_code$art == first_word, ]
 
