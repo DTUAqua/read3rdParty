@@ -83,6 +83,13 @@ read_in_skaw_excel <- function(input_path, file, output_path) {
   
   dat_1 <- dat[, -c(1:(position_col-1))]
   
+  
+  position_col_2 <- grep("Crt.", x = dat_1)
+  
+  dat_01 <- dat_1[, c(1:(position_col_2-1))]
+  
+  dat_1 <- dat_01
+  
   # Find univesal info ----
   
   position_head_1 <- which(apply(dat_1, 1, function(x) any(grepl("Skib:", x))))
@@ -196,7 +203,7 @@ read_in_skaw_excel <- function(input_path, file, output_path) {
         col_names[i] <- col_names[i]
       } else if (samples_1[1, i] == "(kg)") {
         col_names[i] <- col_names[i-1]
-      } else if (samples_1[1, i] == "stk.")
+      } else if (samples_1[1, i] %in% c("stk.", "(stk.)"))
         col_names[i] <- col_names[i-1]
     } }
   
@@ -205,7 +212,7 @@ read_in_skaw_excel <- function(input_path, file, output_path) {
       col_names[i] <- col_names[i]
     } else if (samples_1[1, i] == "(kg)") {
       col_names[i] <- paste0(col_names[i], "_kg")
-    } else if (samples_1[1, i] == "stk.") {
+    } else if (samples_1[1, i] %in% c("stk.", "(stk.)")) {
       col_names[i] <- paste0(col_names[i], "_stk")
     } else {
       col_names[i] <- col_names[i]
