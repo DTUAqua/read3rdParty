@@ -39,6 +39,31 @@ read_in_dan_eye_excel <- function(input_path, id, output_path) {
   tot_wgt_i <- dat_i[position_tot_wgt_1, grep("Tilmeldt art", dat_i) + 4]
   colnames(tot_wgt_i) <- c("tot_wgt_i")
   
+  # Get header info from inspection report
+  position_head_1 <- which(apply(dat_i, 1, function(x) any(grepl("Rapport Nr.:", x))))
+  head_1 <- dat_i[position_head_1, ]
+  report_no <- head_1[, grep("Rapport Nr.:", head_1) + 3]
+  colnames(report_no) <- c("report_no")
+  
+  position_head_2 <- which(apply(dat_i, 1, function(x) any(grepl("Nr.:", x))))
+  position_head_2 <- subset(position_head_2, !(grepl(pattern = position_head_1, x = position_head_2)))
+  head_2 <- dat_i[position_head_2, ]
+
+  fid <- head_2[, grep("Nr.:", head_2) + 3]
+  fid_no <- str_extract(fid, "[[:digit:]]{2,3}")
+  fid_char <- gsub("[[:digit:]].*","", fid)
+  fid_char_1 <- gsub(" ","", fid_char)
+  fid <- paste0(fid_char_1, fid_no)
+  fid <- as.data.frame(fid)
+  
+  position_head_3 <- which(apply(dat_i, 1, function(x) any(grepl("Dato.:", x))))
+  head_3 <- dat_i[position_head_3, ]
+
+  date <- head_3[, grep("Dato.:", head_3) + 3] # This need to be translated into a proper date
+  colnames(date) <- c("date")
+  
+  head_done <- cbind(fid, report_no, tot_wgt_i, date)
+  
   #### Hertil
   
   
@@ -223,11 +248,12 @@ read_in_dan_eye_excel <- function(input_path, id, output_path) {
   # 
   # samples_4$fishery <- substr(colnames(samples_2)[2], 1, 3)
   # samples_4$path <- input_path
-  # samples_4$filename <- file
   # 
   # samples_5 <- cross_join(samples_4, head_done)
   # 
-  dat_done <- tot_wgt_i
+  dat_done <- head_done
+  dat_done$filename <- id
+  dat_done$path <- input_path
 
   return(dat_done)
   
