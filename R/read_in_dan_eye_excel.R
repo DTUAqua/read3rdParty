@@ -6,7 +6,7 @@
 #' @export
 #'
 #' @examples
-read_in_dan_eye <- function(input_path, file, output_path) {
+read_in_dan_eye_excel <- function(input_path, id, output_path) {
   
   library(readxl)
   library(stringr)
@@ -19,66 +19,22 @@ read_in_dan_eye <- function(input_path, file, output_path) {
   dir.create(file.path(output_path, "sworn_cant_read_yet"))
   dir.create(file.path(output_path, "skaw_dtu_19_cant_read_yet"))
   
-  print(file)
+  print(id)
   
-  sheet_names <- excel_sheets(path = paste0(input_path, file))
+  # Find relevant files
+  file_list <- list.files(path = input_path, pattern = id, recursive = T)
   
-  if (length(sheet_names) > 1) {
-    file.copy(
-      from = paste0(input_path, file),
-      to = file.path(output_path, "to_many_sheets"),
-      overwrite = T
-    )
-    
-    dat_done <- c()
-    
-  } else if (sheet_names[1] %in% c("Tobis",
-                                   "Brisling 16+",
-                                   "Sild",
-                                   "Fjæsing",
-                                   "Brisling",
-                                   "Sild 16+")) {
-    file.copy(
-      from = paste0(input_path, file),
-      to = file.path(output_path, "sworn_cant_read_yet"),
-      overwrite = T
-    )
-    
-    dat_done <- c()
-    
-  } else if (sheet_names[1] %in% c("DTU_19")) {
-    
-    file.copy(
-      from = paste0(input_path, file),
-      to = file.path(output_path, "skaw_dtu_19_cant_read_yet"),
-      overwrite = T
-    )
-    
-    dat_done <- c()
-    
-  } else if (length(sheet_names) == 1 &
-             !(
-               sheet_names[1] %in% c(
-                 "Tobis",
-                 "Brisling 16+",
-                 "Sild",
-                 "Fjæsing",
-                 "Brisling",
-                 "Sild 16+",
-                 "DTU_19"
-               )
-             )) {
-    file.copy(
-      from = paste0(input_path, file),
-      to = file.path(output_path, "read"),
-      overwrite = T
-    )
-    
-    
-    dat <-  read_excel(paste0(input_path, file),
-                       sheet = 1,
-                       col_names = FALSE)
-    
+  bifang_file <- subset(file_list, grepl(pattern = "Bifang", x = file_list))
+  inspek_file <- subset(file_list, grepl(pattern = "Inspek", x = file_list))
+  
+  dat_b <- read_excel(paste0(input_path, bifang_file),
+                      sheet = 1,
+                      col_names = FALSE)
+  dat_i <- read_excel(paste0(input_path, inspek_file),
+                      sheet = 1,
+                      col_names = FALSE)
+  #### Hertil
+  
   position_col <- grep("Prøveoversigt", x = dat)
   
   dat_1 <- dat[, -c(1:(position_col-1))]
@@ -256,7 +212,7 @@ read_in_dan_eye <- function(input_path, file, output_path) {
   samples_5 <- cross_join(samples_4, head_done)
   
   dat_done <- samples_5
-  }
+
   return(dat_done)
   
 }
