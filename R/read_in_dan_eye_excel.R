@@ -56,10 +56,10 @@ read_in_dan_eye_excel <- function(input_path, id, output_path) {
   fid <- paste0(fid_char_1, fid_no)
   fid <- as.data.frame(fid)
   
-  position_head_3 <- which(apply(dat_i, 1, function(x) any(grepl("Dato.:", x))))
+  position_head_3 <- which(apply(dat_i, 1, function(x) any(grepl("Dato.:|Start dato.:", x))))
   head_3 <- dat_i[position_head_3, ]
 
-  date <- head_3[, grep("Dato.:", head_3) + 3] # This need to be translated into a proper date
+  date <- head_3[, grep("Dato.:|Start dato.:", head_3) + 3] # This need to be translated into a proper date
   colnames(date) <- c("date")
   
   head_done <- cbind(fid, report_no, tot_wgt_i, date)
