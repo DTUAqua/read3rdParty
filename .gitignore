@@ -4,3 +4,4 @@
 .Ruserdata
 3_party_samples.Rproj
 inst/doc
+R/bug_fixing.R
