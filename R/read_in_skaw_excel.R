@@ -18,6 +18,7 @@ read_in_skaw_excel <- function(input_path, file, output_path) {
   dir.create(file.path(output_path, "read"))
   dir.create(file.path(output_path, "sworn_cant_read_yet"))
   dir.create(file.path(output_path, "skaw_dtu_19_cant_read_yet"))
+  dir.create(file.path(output_path, "skaw_dtu_two_schemes"))
   
   print(file)
   
@@ -81,10 +82,19 @@ read_in_skaw_excel <- function(input_path, file, output_path) {
     
   position_col <- grep("Prøveoversigt", x = dat)
   
+  if (length(position_col) > 1) {
+    file.copy(
+      from = paste0(input_path, file),
+      to = file.path(output_path, "skaw_dtu_two_schemes"),
+      overwrite = T
+    )
+    dat_done <- c()
+  } else if (length(position_col) == 1) {
+  
   dat_1 <- dat[, -c(1:(position_col-1))]
   
   
-  position_col_2 <- grep("Crt.", x = dat_1)
+  position_col_2 <- grep("Inspektor|Crt.", x = dat_1)
   
   dat_01 <- dat_1[, c(1:(position_col_2-1))]
   
@@ -256,6 +266,7 @@ read_in_skaw_excel <- function(input_path, file, output_path) {
   samples_5 <- cross_join(samples_4, head_done)
   
   dat_done <- samples_5
+  }
   }
   return(dat_done)
   
