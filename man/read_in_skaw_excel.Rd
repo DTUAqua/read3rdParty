@@ -4,7 +4,7 @@
 \alias{read_in_skaw_excel}
 \title{Title}
 \usage{
-read_in_skaw_excel(file)
+read_in_skaw_excel(input_path, file, output_path)
 }
 \arguments{
 \item{file}{}
